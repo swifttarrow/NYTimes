@@ -10,7 +10,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.swifttarrow.nytimessearch.SearchActivity">
+    tools:context="com.example.swifttarrow.nytimessearch.activities.SearchActivity">
 
     <Button
         android:layout_width="wrap_content"
@@ -28,7 +28,9 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/btnSearch"
-        android:id="@+id/gvResults" />
+        android:id="@+id/gvResults"
+        android:numColumns="4"
+        />
 
     <EditText
         android:layout_width="wrap_content"
