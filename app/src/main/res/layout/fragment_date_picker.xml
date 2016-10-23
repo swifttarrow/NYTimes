@@ -1,0 +1,12 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.swifttarrow.nytimessearch.fragments.DatePickerFragment">
+
+    <DatePicker
+        android:layout_width="395dp"
+        android:layout_height="539dp"
+        android:id="@+id/datePicker" />
+
+</FrameLayout>
