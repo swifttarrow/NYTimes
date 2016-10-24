@@ -1,4 +1,4 @@
-package com.example.swifttarrow.nytimessearch;
+package com.example.swifttarrow.nytimessearch.models;
 
 import org.json.JSONArray;
 import org.json.JSONException;
