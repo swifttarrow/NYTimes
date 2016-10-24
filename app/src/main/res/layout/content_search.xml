@@ -22,15 +22,15 @@
         android:onClick="onArticleSearch"
         android:text="@string/search" />
 
-    <GridView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/btnSearch"
-        android:id="@+id/gvResults"
+        android:id="@+id/rvResults"
         android:numColumns="4"
-        />
+        android:background="@android:color/holo_orange_light" />
 
     <EditText
         android:layout_width="wrap_content"

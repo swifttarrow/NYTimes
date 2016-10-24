@@ -3,6 +3,8 @@ package com.example.swifttarrow.nytimessearch.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -10,14 +12,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridView;
 
 import com.example.swifttarrow.nytimessearch.Article;
-import com.example.swifttarrow.nytimessearch.ArticleArrayAdapter;
+import com.example.swifttarrow.nytimessearch.ArticlesAdapter;
 import com.example.swifttarrow.nytimessearch.R;
+import com.example.swifttarrow.nytimessearch.listeners.EndlessRecyclerViewScrollListener;
 import com.example.swifttarrow.nytimessearch.utils.StringUtils;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -30,7 +31,6 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
@@ -38,17 +38,22 @@ import cz.msebera.android.httpclient.Header;
 public class SearchActivity extends AppCompatActivity {
 
     EditText etQuery;
-    GridView gvResults;
+    RecyclerView rvResults;
     Button btnSearch;
 
     List<Article> articles;
-    ArticleArrayAdapter adapter;
+    ArticlesAdapter adapter;
+
+    String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+    RequestParams params;
 
     String beginDate;
     String sortOrder;
     boolean isArts;
     boolean isFashionAndStyle;
     boolean isSports;
+
+    AsyncHttpClient client = new AsyncHttpClient();
 
     private static final int REQUEST_CODE = 20;
 
@@ -83,31 +88,48 @@ public class SearchActivity extends AppCompatActivity {
 
     public void setupViews() {
         etQuery = (EditText) findViewById(R.id.etQuery);
-        gvResults = (GridView) findViewById(R.id.gvResults);
+        rvResults = (RecyclerView) findViewById(R.id.rvResults);
         btnSearch = (Button) findViewById(R.id.btnSearch);
         articles = new ArrayList<>();
-        adapter = new ArticleArrayAdapter(this, articles);
-        gvResults.setAdapter(adapter);
+        adapter = new ArticlesAdapter(this, articles);
+        rvResults.setAdapter(adapter);
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        rvResults.setLayoutManager(layoutManager);
 
-        gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        rvResults.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Intent i = new Intent(getApplicationContext(), ArticleActivity.class);
-                Article article = articles.get(position);
-                i.putExtra("article", article);
-                startActivity(i);
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                loadNextDataFromApi(page);
+            }
+        });
+    }
+
+    public void loadNextDataFromApi(int offset) {
+        Log.d("loadNextDataFromApi", "BEING CALLED");
+        params.put("page", offset);
+        client.get(url, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d("DEBUG", response.toString());
+                JSONArray articleJsonResults = null;
+
+                try {
+                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
+                    adapter.addAll(Article.fromJSONArray(articleJsonResults));
+                    Log.d("DEBUG", articles.toString());
+                } catch (JSONException e){
+                    e.printStackTrace();
+                }
+                super.onSuccess(statusCode, headers, response);
             }
         });
     }
 
     public void onArticleSearch(View view) {
         String query = etQuery.getText().toString();
+        adapter.clear();
 
-        //Toast.makeText(this, "Searching for" + query, Toast.LENGTH_LONG).show();
-        AsyncHttpClient client = new AsyncHttpClient();
-        String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-
-        RequestParams params = new RequestParams();
+        params = new RequestParams();
         params.put("api-key", "be478aa47a3944c8b8f6637fd6b79f2e");
         params.put("page", 0);
         params.put("q", query);
@@ -149,6 +171,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // REQUEST_CODE is defined above
@@ -161,4 +184,5 @@ public class SearchActivity extends AppCompatActivity {
             isSports = data.getExtras().getBoolean("isSports");
         }
     }
+
 }
