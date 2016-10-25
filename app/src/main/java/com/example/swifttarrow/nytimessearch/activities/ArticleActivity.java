@@ -1,26 +1,35 @@
 package com.example.swifttarrow.nytimessearch.activities;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.example.swifttarrow.nytimessearch.models.Article;
 import com.example.swifttarrow.nytimessearch.R;
+import com.example.swifttarrow.nytimessearch.models.Article;
 import com.example.swifttarrow.nytimessearch.utils.NetworkUtils;
 
-public class ArticleActivity extends AppCompatActivity {
+import org.parceler.Parcels;
 
+public class ArticleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        Article article = (Article) getIntent().getSerializableExtra("article");
+        Article article = (Article) (Parcels.unwrap(getIntent().getParcelableExtra("article")));
 
         if (!NetworkUtils.isNetworkAvailable(this) || !NetworkUtils.isOnline()){
             Toast.makeText(this, "You are not currently connected to the Internet. Please try again later.", Toast.LENGTH_SHORT);
@@ -45,5 +54,25 @@ public class ArticleActivity extends AppCompatActivity {
             }
         });
         webView.loadUrl(article.getWebUrl());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_article, menu);
+
+        MenuItem item = menu.findItem(R.id.menu_item_share);
+        ShareActionProvider miShare = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+
+        // get reference to WebView
+
+        WebView wvArticle = (WebView) findViewById(R.id.wvArticle);
+        // pass in the URL currently being used by the WebView
+
+        shareIntent.putExtra(Intent.EXTRA_TEXT, wvArticle.getUrl());
+
+        miShare.setShareIntent(shareIntent);
+        return super.onCreateOptionsMenu(menu);
     }
 }

@@ -3,8 +3,8 @@ package com.example.swifttarrow.nytimessearch.models;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcel;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,10 +12,15 @@ import java.util.List;
  * Created by swifttarrow on 10/20/2016.
  */
 
-public class Article implements Serializable {
+@Parcel
+public class Article{
     String webUrl;
     String headline;
     String thumbNail;
+
+    public Article() {
+
+    }
 
     public Article(JSONObject jsonObject){
         try {

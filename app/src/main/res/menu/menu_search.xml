@@ -13,7 +13,7 @@
         android:orderInCategory="5"
         android:title="@string/filter"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/filter_icon"/>
+        app:srcCompat="@drawable/filter_icon"/>
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

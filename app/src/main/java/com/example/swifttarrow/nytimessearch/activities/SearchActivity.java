@@ -37,7 +37,6 @@ import java.util.List;
 import cz.msebera.android.httpclient.Header;
 
 public class SearchActivity extends AppCompatActivity {
-
     RecyclerView rvResults;
 
     List<Article> articles;

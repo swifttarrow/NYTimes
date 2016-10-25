@@ -3,20 +3,23 @@ package com.example.swifttarrow.nytimessearch.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.ViewTarget;
 import com.example.swifttarrow.nytimessearch.R;
 import com.example.swifttarrow.nytimessearch.activities.ArticleActivity;
 import com.example.swifttarrow.nytimessearch.models.Article;
 import com.example.swifttarrow.nytimessearch.views.DynamicHeightImageView;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
+
+import org.parceler.Parcels;
 
 import java.util.List;
 
@@ -34,31 +37,12 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         this.mArticles = articles;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Target {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView tvTitle;
         public DynamicHeightImageView ivImage;
-
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            // Calculate the image ratio of the loaded bitmap
-            float ratio = (float) bitmap.getHeight() / (float) bitmap.getWidth();
-            // Set the ratio for the image
-            ivImage.setHeightRatio(ratio);
-            // Load the image into the view
-            ivImage.setImageBitmap(bitmap);
-        }
-
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable){
-
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable){
-
-        }
+        //TODO: Add data binding for ViewHolder.
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
@@ -79,7 +63,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
             if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
                 Intent i = new Intent(mContext, ArticleActivity.class);
                 Article article = mArticles.get(position);
-                i.putExtra("article", article);
+                i.putExtra("article", Parcels.wrap(article));
                 mContext.startActivity(i);
             }
         }
@@ -112,13 +96,28 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         TextView textView = viewHolder.tvTitle;
         textView.setText(article.getHeadline());
         DynamicHeightImageView imageView = viewHolder.ivImage;
-        imageView.setImageResource(0);
+        Glide.clear(viewHolder.ivImage);
+        viewHolder.ivImage.setImageDrawable(null);
 
         String thumbnail = article.getThumbNail();
 
-        if (!TextUtils.isEmpty(thumbnail)){
-            Picasso.with(getContext()).load(thumbnail).into(viewHolder);
+        if (!TextUtils.isEmpty(thumbnail)) {
+            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            Glide.with(getContext()).load(thumbnail).asBitmap().into(new ViewTarget<DynamicHeightImageView, Bitmap>(imageView) {
+                @Override
+                public void onResourceReady(Bitmap resource, GlideAnimation anim) {
+                    // Load image into view.
+                    DynamicHeightImageView myView = this.view;
+                    // Set your resource on myView and/or start your animation here.
+                    float ratio = (float) resource.getHeight() / (float) resource.getWidth();
+                    // Set the ratio for the image
+                    myView.setHeightRatio(ratio);
+                    myView.setImageBitmap(resource);
+                }
+
+            });
         } else {
+            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             imageView.setImageResource(R.drawable.news_icon);
         }
     }

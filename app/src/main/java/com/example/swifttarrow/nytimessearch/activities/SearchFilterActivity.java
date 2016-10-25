@@ -2,8 +2,8 @@ package com.example.swifttarrow.nytimessearch.activities;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,23 +20,23 @@ import java.util.Calendar;
 
 public class SearchFilterActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener,
         AdapterView.OnItemSelectedListener{
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_filter);
 
-        EditText etBeginDate = (EditText) findViewById(R.id.etBeginDate);
-        etBeginDate.setOnClickListener(new View.OnClickListener() {
+        ((EditText) findViewById(R.id.etBeginDate)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showDatePickerDialog(view);
             }
         });
-        Spinner spinner = (Spinner) findViewById(R.id.spSortOrder);
+
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.sort_order_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        ((Spinner) findViewById(R.id.spSortOrder)).setAdapter(adapter);
     }
 
     public void showDatePickerDialog(View v) {
@@ -46,10 +46,9 @@ public class SearchFilterActivity extends AppCompatActivity implements DatePicke
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int date) {
-        EditText etBeginDate = (EditText) findViewById(R.id.etBeginDate);
         Calendar c = Calendar.getInstance();
         c.set(year, month, date);
-        etBeginDate.setText(DateFormat.format("MM/dd/yyyy", c.getTime()));
+        ((EditText) findViewById(R.id.etBeginDate)).setText(DateFormat.format("MM/dd/yyyy", c.getTime()));
     }
 
     public void onItemSelected(AdapterView<?> parent, View view,
@@ -63,11 +62,10 @@ public class SearchFilterActivity extends AppCompatActivity implements DatePicke
     }
 
     public void onSubmit(View v) {
-        EditText etBeginDate = (EditText) findViewById(R.id.etBeginDate);
         // Prepare data intent
         Intent data = new Intent();
         // Pass relevant data back as a result
-        data.putExtra("beginDate", etBeginDate.getText().toString());
+        data.putExtra("beginDate", ((EditText) findViewById(R.id.etBeginDate)).getText().toString());
         data.putExtra("sortOrder", ((Spinner) findViewById(R.id.spSortOrder)).getSelectedItem().toString()); // ints work too
         data.putExtra("isArts", ((CheckBox) findViewById(R.id.cbArts)).isChecked());
         data.putExtra("isFashionAndStyle", ((CheckBox) findViewById(R.id.cbFashionStyle)).isChecked());
